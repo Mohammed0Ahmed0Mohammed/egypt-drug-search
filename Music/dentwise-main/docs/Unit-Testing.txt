@@ -1,0 +1,455 @@
+Unit Testing (JUnit 5) - WhiteBoxSample
+1. Testing Framework
+Item
+
+Value
+
+Framework
+Language
+Build Tool
+Coverage Tool
+
+JUnit 5.10.1
+Java 17
+Maven
+JaCoCo
+
+2. Test File Structure
+java-testing/
+��� pom.xml
+��� src/
+�
+��� main/java/vv/sample/
+�
+�
+��� WhiteBoxSample.java
+�
+��� test/java/vv/sample/
+�
+��� WhiteBoxSampleTest.java
+
+3. Test Cases Summary (35+ Tests)
+3.1 Account Class Tests (11 Tests)
+Test ID
+
+Category
+
+Description
+
+TC-ACC-01
+TC-ACC-02
+TC-ACC-03
+TC-ACC-04
+TC-ACC-05
+TC-ACC-06
+TC-ACC-07
+TC-ACC-08
+TC-ACC-09
+TC-ACC-10
+TC-ACC-11
+
+Normal
+Exception
+Exception
+Exception
+Boundary
+Normal
+Exception
+Exception
+Normal
+Exception
+Normal
+
+Create account with valid data
+Null ID throws exception
+Blank ID throws exception
+Negative balance throws exception
+Zero balance succeeds
+Deposit increases balance
+Non-positive deposit throws
+Deposit to frozen account throws
+Withdraw decreases balance
+Insufficient funds throws
+Freeze/unfreeze works
+
+Status
+
+3.2 TransactionProcessor Tests (9 Tests)
+Test ID
+
+Category
+
+Description
+
+TC-TXN-01
+TC-TXN-02
+TC-TXN-03
+TC-TXN-04
+TC-TXN-05
+
+Invalid
+Invalid
+Invalid
+Invalid
+Invalid
+
+Null source returns error
+Null destination returns error
+Frozen source returns error
+Frozen destination returns error
+Zero amount returns error
+
+1
+
+Status
+
+Test ID
+
+Category
+
+Description
+
+Status
+
+TC-TXN-06
+TC-TXN-07
+TC-TXN-08
+TC-TXN-09
+
+Invalid
+Normal
+Edge
+Normal
+
+Negative amount returns error
+Successful VIP transfer
+Insufficient funds after fee
+Log updated after transfer
+
+3.3 calculateFee Tests (8 Tests)
+Test ID
+
+Category
+
+Description
+
+Input
+
+Expected
+
+TC-FEE-01
+TC-FEE-02
+TC-FEE-03
+TC-FEE-04
+TC-FEE-05
+TC-FEE-06
+TC-FEE-07
+TC-FEE-08
+
+Normal
+Normal
+Boundary
+Normal
+Normal
+Edge
+Boundary
+Edge
+
+VIP fee > 1000
+VIP fee <= 1000
+VIP at 1000
+PREMIUM fee
+REGULAR fee >= 50
+REGULAR fee < 50
+REGULAR at 50
+Zero/negative amount
+
+VIP, 2000
+VIP, 500
+VIP, 1000
+PREMIUM, 1000
+REGULAR, 100
+REGULAR, 30
+REGULAR, 50
+VIP, 0
+
+10.0
+5.0
+10.0
+15.0
+2.0
+1.0
+1.0
+0.0
+
+Status
+
+3.4 SecurityUtils.isPasswordStrong Tests (7 Tests)
+Test ID
+
+Category
+
+Description
+
+Input
+
+Expected
+
+TC-PWD-01
+TC-PWD-02
+TC-PWD-03
+TC-PWD-04
+TC-PWD-05
+TC-PWD-06
+TC-PWD-07
+
+Invalid
+Boundary
+Boundary
+Edge
+Normal
+Normal
+Edge
+
+Null password
+Less than 8 chars
+Exactly 8 chars strong
+Only 2 types
+3 types
+All 4 types
+Only digits
+
+null
+“Abc$12”
+“Abcd$123”
+“abcdABCD”
+“Abcdefg1”
+“Abc$1234”
+“12345678”
+
+false
+false
+true
+false
+true
+true
+false
+
+Status
+
+3.5 SecurityUtils.sanitize Tests (5 Tests)
+Test ID
+
+Category
+
+Description
+
+Input
+
+Expected
+
+TC-SAN-01
+
+Invalid
+
+Null input
+
+null
+
+null
+
+Status
+
+| TC-SAN-02 | Normal | Escape < | ”
+” | “<script>” | | | TC-SAN-03 | Normal | Escape > | “test>val” | “test>val” | | | TC-SAN-04
+| Normal | Trim whitespace | ” hello ” | “hello” | | | TC-SAN-05 | Normal | Plain text | “Hello” |
+“Hello” | |
+3.6 DiscountCalculator Tests (10 Tests)
+Test ID
+
+Category
+
+Description
+
+TC-DSC-01
+TC-DSC-02
+
+Exception
+Normal
+
+Negative price throws
+VIP base 10%
+
+2
+
+Status
+
+Test ID
+
+Category
+
+Description
+
+Status
+
+TC-DSC-03
+TC-DSC-04
+TC-DSC-05
+TC-DSC-06
+TC-DSC-07
+TC-DSC-08
+TC-DSC-09
+TC-DSC-10
+
+Normal
+Normal
+Normal
+Normal
+Normal
+Edge
+Normal
+Boundary
+
+PREMIUM base 5%
+REGULAR base 0%
+Loyalty > 20 = 3%
+Loyalty 11-20 = 1%
+No loyalty <= 10
+Seasonal VIP bonus
+Mid-price bonus
+Discount capped at 25%
+
+4. Test Distribution by Category
+Category
+
+Count
+
+Percentage
+
+Normal
+Exception/Invalid
+Edge
+Boundary
+Total
+
+18
+10
+5
+5
+35+
+
+51%
+29%
+14%
+14%
+100%
+
+5. Running Tests
+Using Maven:
+# Navigate to java-testing directory
+cd java-testing
+# Run all tests
+mvn test
+# Run tests with coverage report
+mvn test jacoco:report
+# View coverage report
+open target/site/jacoco/index.html
+Using IDE:
+1. Open java-testing folder in IntelliJ IDEA or Eclipse
+2. Right-click on WhiteBoxSampleTest.java
+3. Select “Run with Coverage”
+
+6. Sample Test Code
+@Nested
+@DisplayName("Account Class Tests")
+3
+
+class AccountTests {
+@Test
+@DisplayName("TC-ACC-01: Create account with valid data")
+void testCreateValidAccount() {
+Account acc = new Account("A001", 1000.0, CustomerType.VIP);
+assertEquals("A001", acc.getId());
+assertEquals(1000.0, acc.getBalance());
+assertEquals(CustomerType.VIP, acc.getType());
+assertFalse(acc.isFrozen());
+}
+@Test
+@DisplayName("TC-ACC-02: Create account with null ID throws exception")
+void testCreateAccountNullId() {
+assertThrows(IllegalArgumentException.class, () -> {
+new Account(null, 1000.0, CustomerType.REGULAR);
+});
+}
+@Test
+@DisplayName("TC-ACC-10: Withdraw more than balance throws exception")
+void testWithdrawInsufficientFunds() {
+Account acc = new Account("A001", 100.0, CustomerType.REGULAR);
+assertThrows(IllegalArgumentException.class, () -> acc.withdraw(150.0));
+}
+}
+
+7. Expected Coverage Results
+Class
+
+Line Coverage
+
+Branch Coverage
+
+Account
+TransactionProcessor
+SecurityUtils
+DiscountCalculator
+Overall
+
+100%
+100%
+100%
+95%+
+97%+
+
+100%
+100%
+100%
+100%
+100%
+
+8. Test Annotations Used
+Annotation
+
+Purpose
+
+@Test
+@DisplayName
+@Nested
+@BeforeEach
+@ParameterizedTest
+
+Mark method as test
+Human-readable test name
+Group related tests
+Setup before each test
+Data-driven tests
+
+4
+
+9. Assertions Used
+Assertion
+
+Purpose
+
+assertEquals()
+assertTrue()
+assertFalse()
+assertNull()
+assertThrows()
+
+Verify expected equals actual
+Verify condition is true
+Verify condition is false
+Verify value is null
+Verify exception is thrown
+
+5
+
+

@@ -1,0 +1,532 @@
+White Box Testing - WhiteBoxSample (Java)
+1. Selected Function: calculateFee
+public double calculateFee(CustomerType type, double amount) {
+if (amount <= 0) return 0.0;
+// Node 1
+switch (type) {
+// Node 2
+case VIP:
+if (amount > 1000) return amount * 0.005; // Node 3
+return amount * 0.01;
+// Node 4
+case PREMIUM:
+return amount * 0.015;
+// Node 5
+case REGULAR:
+default:
+if (amount < 50) return 1.0;
+// Node 6
+return amount * 0.02;
+// Node 7
+}
+}
+
+2. Control Flow Graph (CFG)
+���������������
+�
+START
+�
+�
+Node 0
+�
+���������������
+�
+�
+���������������
+������
+Node 1
+������
+�
+� amount <= 0 �
+�
+�
+�
+?
+�
+�
+�
+���������������
+�
+YES �
+� NO
+�
+�
+���������������
+���������������
+� return 0.0 �
+�
+Node 2
+�
+�
+Node 1a
+�
+�
+switch
+�
+���������������
+�
+type
+�
+�
+���������������
+�
+������������������������������
+�
+VIP � PREMIUM
+�
+REGULAR/default
+�
+�
+�
+�
+�
+��������������� ������������� ���������������
+�
+������
+Node 3
+� � Node 5
+� �
+Node 6
+�
+�
+�
+� amount>1000 � �return 1.5%� � amount < 50 �
+�
+�
+�
+?
+� ������������� �
+?
+�
+�
+�
+���������������
+�
+���������������
+�YES �
+� NO
+�
+� YES
+� NO
+�
+�
+�
+�
+�
+�
+� ����������� �����������
+�
+����������� �����������
+� �return
+� �return
+�
+�
+�return
+� �return
+�
+� � 0.5%
+� �
+1%
+�
+�
+� 1.0
+� �
+2%
+�
+
+1
+
+� � Node 3a � � Node 4 �
+�
+� Node 6a � � Node 7
+� ����������� �����������
+�
+����������� �����������
+�
+�
+�
+�
+�
+�
+�
+�
+�
+�
+�
+�
+�������������������������������������������������������������������
+�
+END
+�������������������������������������������������������������������
+
+�
+
+�
+
+3. Cyclomatic Complexity Calculation
+Method 1: V(G) = E - N + 2P
+Element
+
+Count
+
+Edges (E)
+Nodes (N)
+Connected Components (P)
+
+14
+10
+1
+
+V(G) = 14 - 10 + 2(1) = 6
+Method 2: V(G) = D + 1
+Decision Points
+
+Count
+
+if (amount <= 0)
+switch (type) - 3 cases
+if (amount > 1000)
+if (amount < 50)
+Total
+
+1
+3
+1
+1
+6
+
+V(G) = 6 (decision points counted as edges)
+Cyclomatic Complexity = 6
+
+4. Independent Paths (6 Paths)
+Path #
+
+Description
+
+Condition
+
+Test Input
+
+Path 1
+Path 2
+Path 3
+Path 4
+Path 5
+Path 6
+
+Amount <= 0
+VIP, amount > 1000
+VIP, amount <= 1000
+PREMIUM
+REGULAR, amount < 50
+REGULAR, amount >= 50
+
+amount <= 0
+VIP && amount > 1000
+VIP && amount <= 1000
+type = PREMIUM
+REGULAR && amount < 50
+REGULAR && amount >= 50
+
+amount = 0
+VIP, 2000
+VIP, 500
+PREMIUM, 1000
+REGULAR, 30
+REGULAR, 100
+
+2
+
+Path Details:
+Path 1: START → Node 1 (YES) → return 0.0 → END
+Path 2: START → Node 1 (NO) → Node 2 (VIP) → Node 3 (YES) → return 0.5% → END
+Path 3: START → Node 1 (NO) → Node 2 (VIP) → Node 3 (NO) → Node 4 → return 1% → END
+Path 4: START → Node 1 (NO) → Node 2 (PREMIUM) → Node 5 → return 1.5% → END
+Path 5: START → Node 1 (NO) → Node 2 (REGULAR) → Node 6 (YES) → return 1.0 → END
+Path 6: START → Node 1 (NO) → Node 2 (REGULAR) → Node 6 (NO) → Node 7 → return 2% → END
+
+5. Path Coverage Test Matrix
+Path
+
+Test Case ID
+
+Input
+
+Expected
+
+Actual
+
+Status
+
+1
+2
+3
+4
+5
+6
+
+TC-FEE-08
+TC-FEE-01
+TC-FEE-02
+TC-FEE-04
+TC-FEE-06
+TC-FEE-05
+
+(VIP, 0)
+(VIP, 2000)
+(VIP, 500)
+(PREMIUM, 1000)
+(REGULAR, 30)
+(REGULAR, 100)
+
+0.0
+10.0
+5.0
+15.0
+1.0
+2.0
+
+0.0
+10.0
+5.0
+15.0
+1.0
+2.0
+
+PASS
+PASS
+PASS
+PASS
+PASS
+PASS
+
+Path Coverage: 100% (6/6 paths covered)
+
+6. Additional Function Analysis: isPasswordStrong
+Control Flow Graph Summary
+public static boolean isPasswordStrong(String password) {
+if (password == null) return false;
+// D1
+int len = password.length();
+if (len < 8) return false;
+// D2
+// loop through chars
+for (char c : password.toCharArray()) {
+// D3 (loop)
+if (Character.isUpperCase(c)) ...
+// D4
+else if (Character.isLowerCase(c)) ...
+// D5
+else if (Character.isDigit(c)) ...
+// D6
+else hasSpecial = true;
+// D7
+}
+// calculate score
+if (hasUpper) score++;
+// D8
+if (hasLower) score++;
+// D9
+if (hasDigit) score++;
+// D10
+if (hasSpecial) score++;
+// D11
+return score >= 3;
+// D12
+}
+Cyclomatic Complexity
+V(G) = 12 decision points + 1 = 13
+
+3
+
+Test Cases for Full Coverage
+TC ID
+
+Input
+
+Expected
+
+Coverage
+
+TC-PWD-01
+TC-PWD-02
+TC-PWD-03
+TC-PWD-04
+TC-PWD-05
+TC-PWD-06
+TC-PWD-07
+
+null
+“Abc$12”
+“Abcd$123”
+“abcdefgh”
+“Abcdefg1”
+“Abc$1234”
+“12345678”
+
+false
+false
+true
+false
+true
+true
+false
+
+D1
+D2 (length < 8)
+All types
+Only lower
+3 types
+4 types
+Only digits
+
+7. Statement Coverage Analysis
+calculateFee Function
+Line
+
+Statement
+
+Covered By
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+
+if (amount <= 0) return 0.0
+switch (type)
+case VIP: if (amount > 1000)
+return amount * 0.005
+return amount * 0.01
+case PREMIUM: return 1.5%
+case REGULAR: if (amount < 50)
+return 1.0
+return amount * 0.02
+
+TC-FEE-08
+All tests
+TC-FEE-01, TC-FEE-02
+TC-FEE-01
+TC-FEE-02, TC-FEE-03
+TC-FEE-04
+TC-FEE-05, TC-FEE-06
+TC-FEE-06
+TC-FEE-05, TC-FEE-07
+
+Statement Coverage: 100%
+
+8. Branch Coverage Analysis
+Branch ID
+
+Condition
+
+True
+
+False
+
+B1
+B2
+B3
+B4
+B5
+
+amount <= 0
+type == VIP
+amount > 1000 (VIP)
+type == PREMIUM
+amount < 50 (REGULAR)
+
+TC-FEE-08
+TC-FEE-01
+TC-FEE-01
+TC-FEE-04
+TC-FEE-06
+
+TC-FEE-01
+TC-FEE-04
+TC-FEE-02
+TC-FEE-05
+TC-FEE-05
+
+Branch Coverage: 100%
+
+9. JUnit Test Implementation
+@Nested
+@DisplayName("calculateFee Tests - Path Coverage")
+4
+
+class CalculateFeeTests {
+@Test
+@DisplayName("Path 1: amount <= 0 returns 0")
+void testPath1_ZeroAmount() {
+assertEquals(0.0, processor.calculateFee(CustomerType.VIP, 0.0));
+}
+@Test
+@DisplayName("Path 2: VIP, amount > 1000 returns 0.5%")
+void testPath2_VipHighAmount() {
+assertEquals(10.0, processor.calculateFee(CustomerType.VIP, 2000.0), 0.01);
+}
+@Test
+@DisplayName("Path 3: VIP, amount <= 1000 returns 1%")
+void testPath3_VipLowAmount() {
+assertEquals(5.0, processor.calculateFee(CustomerType.VIP, 500.0), 0.01);
+}
+@Test
+@DisplayName("Path 4: PREMIUM returns 1.5%")
+void testPath4_Premium() {
+assertEquals(15.0, processor.calculateFee(CustomerType.PREMIUM, 1000.0), 0.01);
+}
+@Test
+@DisplayName("Path 5: REGULAR, amount < 50 returns 1.0")
+void testPath5_RegularLowAmount() {
+assertEquals(1.0, processor.calculateFee(CustomerType.REGULAR, 30.0), 0.01);
+}
+@Test
+@DisplayName("Path 6: REGULAR, amount >= 50 returns 2%")
+void testPath6_RegularHighAmount() {
+assertEquals(2.0, processor.calculateFee(CustomerType.REGULAR, 100.0), 0.01);
+}
+}
+
+10. Summary
+Metric
+
+calculateFee
+
+isPasswordStrong
+
+Cyclomatic Complexity
+Independent Paths
+Statement Coverage
+Branch Coverage
+Test Cases
+
+6
+6
+100%
+100%
+8
+
+13
+13
+100%
+100%
+7
+
+5
+
+Conclusion
+The calculateFee function has a moderate cyclomatic complexity of 6, indicating 6 independent
+paths that need testing. All paths have been covered with appropriate test cases, achieving
+100% statement and branch coverage.
+The isPasswordStrong function has higher complexity (13) due to multiple character type checks
+and scoring logic, but is also fully covered by the test suite.
+
+6
+
+

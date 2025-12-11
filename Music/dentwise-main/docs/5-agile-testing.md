@@ -1,0 +1,312 @@
+# Agile Testing Documentation - DentWise Application
+
+## 1. Project Overview
+
+**Project Name**: DentWise - Dental Clinic Management System  
+**Sprint Duration**: 2 weeks  
+**Team Size**: 4 members  
+**Methodology**: Scrum
+
+---
+
+## 2. Sprint Backlog
+
+### Sprint 1: Core Testing Implementation
+
+| ID | User Story | Story Points | Priority | Status |
+|----|------------|--------------|----------|--------|
+| US-01 | As a QA engineer, I want to analyze requirements so that I can create comprehensive test cases | 5 | High | ✅ Done |
+| US-02 | As a QA engineer, I want to design black-box test cases so that I can validate user-facing functionality | 8 | High | ✅ Done |
+| US-03 | As a QA engineer, I want to perform white-box testing so that I can ensure code coverage | 8 | High | ✅ Done |
+| US-04 | As a QA engineer, I want to write unit tests so that I can automate regression testing | 5 | High | ✅ Done |
+| US-05 | As a QA engineer, I want to document Agile process so that the testing workflow is transparent | 3 | Medium | ✅ Done |
+| US-06 | As a QA engineer, I want to report bugs so that developers can fix issues | 3 | High | ✅ Done |
+
+**Total Story Points**: 32
+
+---
+
+## 3. User Stories Detail
+
+### US-01: Requirements Analysis
+```
+As a QA engineer
+I want to analyze the DentWise application requirements
+So that I can identify testable functional and non-functional requirements
+
+Acceptance Criteria:
+- [ ] Identify 5-7 functional requirements
+- [ ] Identify at least 1 non-functional requirement
+- [ ] All requirements are clear and testable
+- [ ] Requirements are documented in markdown format
+
+Story Points: 5
+Priority: High
+Sprint: 1
+```
+
+### US-02: Black-Box Testing
+```
+As a QA engineer
+I want to design black-box test cases using EP and BVA techniques
+So that I can validate the application without knowledge of internal code
+
+Acceptance Criteria:
+- [ ] Design 8-10 test cases
+- [ ] Apply Equivalence Partitioning technique
+- [ ] Apply Boundary Value Analysis technique
+- [ ] Document test cases with all required fields
+- [ ] Execute tests and record results
+
+Story Points: 8
+Priority: High
+Sprint: 1
+```
+
+### US-03: White-Box Testing
+```
+As a QA engineer
+I want to perform white-box testing on a selected function
+So that I can ensure structural coverage of the code
+
+Acceptance Criteria:
+- [ ] Select one function for analysis
+- [ ] Draw Control Flow Graph (CFG)
+- [ ] Calculate Cyclomatic Complexity
+- [ ] Identify independent paths
+- [ ] Implement tests for path coverage
+
+Story Points: 8
+Priority: High
+Sprint: 1
+```
+
+### US-04: Unit Testing
+```
+As a QA engineer
+I want to write automated unit tests using Jest
+So that I can enable continuous regression testing
+
+Acceptance Criteria:
+- [ ] Write 6-10 unit tests
+- [ ] Cover normal, edge, boundary, and invalid cases
+- [ ] Achieve >90% code coverage
+- [ ] All tests pass successfully
+
+Story Points: 5
+Priority: High
+Sprint: 1
+```
+
+### US-05: Agile Documentation
+```
+As a QA engineer
+I want to document the Agile testing process
+So that the testing workflow is transparent and reproducible
+
+Acceptance Criteria:
+- [ ] Create Sprint Backlog
+- [ ] Write User Stories
+- [ ] Define Testing Tasks
+- [ ] Document Sprint Board status
+
+Story Points: 3
+Priority: Medium
+Sprint: 1
+```
+
+### US-06: Bug Reporting
+```
+As a QA engineer
+I want to report bugs found during testing
+So that developers can fix the issues
+
+Acceptance Criteria:
+- [ ] Report at least 2 bugs
+- [ ] Include steps to reproduce
+- [ ] Include expected vs actual results
+- [ ] Assign severity and priority
+
+Story Points: 3
+Priority: High
+Sprint: 1
+```
+
+---
+
+## 4. Testing Tasks Breakdown
+
+### Task Board
+
+| Task ID | Task Name | Assigned To | Story | Status | Hours |
+|---------|-----------|-------------|-------|--------|-------|
+| T-01 | Analyze application features | Team Lead | US-01 | ✅ Done | 2 |
+| T-02 | Document functional requirements | QA Engineer 1 | US-01 | ✅ Done | 3 |
+| T-03 | Document non-functional requirements | QA Engineer 1 | US-01 | ✅ Done | 1 |
+| T-04 | Create equivalence partitions | QA Engineer 2 | US-02 | ✅ Done | 2 |
+| T-05 | Identify boundary values | QA Engineer 2 | US-02 | ✅ Done | 2 |
+| T-06 | Design 10 test cases | QA Engineer 2 | US-02 | ✅ Done | 4 |
+| T-07 | Execute black-box tests | QA Engineer 2 | US-02 | ✅ Done | 2 |
+| T-08 | Select function for analysis | QA Engineer 3 | US-03 | ✅ Done | 1 |
+| T-09 | Draw Control Flow Graph | QA Engineer 3 | US-03 | ✅ Done | 3 |
+| T-10 | Calculate Cyclomatic Complexity | QA Engineer 3 | US-03 | ✅ Done | 1 |
+| T-11 | Identify independent paths | QA Engineer 3 | US-03 | ✅ Done | 2 |
+| T-12 | Write Jest unit tests | QA Engineer 4 | US-04 | ✅ Done | 4 |
+| T-13 | Run coverage analysis | QA Engineer 4 | US-04 | ✅ Done | 1 |
+| T-14 | Create Sprint documentation | Team Lead | US-05 | ✅ Done | 2 |
+| T-15 | Identify and log bugs | All Team | US-06 | ✅ Done | 2 |
+
+---
+
+## 5. Sprint Board Visualization
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                              SPRINT 1 BOARD: DentWise Testing                           │
+├───────────────────────┬───────────────────────┬───────────────────────┬─────────────────┤
+│       TO DO           │      IN PROGRESS      │       TESTING         │      DONE       │
+├───────────────────────┼───────────────────────┼───────────────────────┼─────────────────┤
+│                       │                       │                       │ ✅ US-01        │
+│                       │                       │                       │ Requirements    │
+│                       │                       │                       │ Analysis        │
+│                       │                       │                       │ (5 pts)         │
+├───────────────────────┼───────────────────────┼───────────────────────┼─────────────────┤
+│                       │                       │                       │ ✅ US-02        │
+│                       │                       │                       │ Black-Box       │
+│                       │                       │                       │ Testing         │
+│                       │                       │                       │ (8 pts)         │
+├───────────────────────┼───────────────────────┼───────────────────────┼─────────────────┤
+│                       │                       │                       │ ✅ US-03        │
+│                       │                       │                       │ White-Box       │
+│                       │                       │                       │ Testing         │
+│                       │                       │                       │ (8 pts)         │
+├───────────────────────┼───────────────────────┼───────────────────────┼─────────────────┤
+│                       │                       │                       │ ✅ US-04        │
+│                       │                       │                       │ Unit Testing    │
+│                       │                       │                       │ (5 pts)         │
+├───────────────────────┼───────────────────────┼───────────────────────┼─────────────────┤
+│                       │                       │                       │ ✅ US-05        │
+│                       │                       │                       │ Agile Docs      │
+│                       │                       │                       │ (3 pts)         │
+├───────────────────────┼───────────────────────┼───────────────────────┼─────────────────┤
+│                       │                       │                       │ ✅ US-06        │
+│                       │                       │                       │ Bug Reports     │
+│                       │                       │                       │ (3 pts)         │
+├───────────────────────┴───────────────────────┴───────────────────────┴─────────────────┤
+│ Sprint Progress: ████████████████████████████████████████ 100%                          │
+│ Story Points: 32/32 completed                                                            │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 6. Sprint Metrics
+
+### Burndown Data
+
+| Day | Remaining Points | Ideal |
+|-----|-----------------|-------|
+| 1 | 32 | 32 |
+| 2 | 28 | 29 |
+| 3 | 24 | 26 |
+| 4 | 20 | 23 |
+| 5 | 16 | 19 |
+| 6 | 12 | 16 |
+| 7 | 8 | 13 |
+| 8 | 5 | 10 |
+| 9 | 3 | 6 |
+| 10 | 0 | 3 |
+
+### Sprint Summary
+
+| Metric | Value |
+|--------|-------|
+| Total Story Points | 32 |
+| Completed Points | 32 |
+| Velocity | 32 pts/sprint |
+| Sprint Goal Achievement | 100% |
+| Test Cases Created | 20 |
+| Test Cases Passed | 20 |
+| Bugs Found | 2 |
+| Code Coverage | 97.29% |
+
+---
+
+## 7. Daily Standup Template
+
+```
+Team Member: [Name]
+Date: [DD/MM/YYYY]
+
+Yesterday:
+- [What was completed]
+
+Today:
+- [What will be worked on]
+
+Blockers:
+- [Any impediments]
+```
+
+---
+
+## 8. Definition of Done (DoD)
+
+For each User Story to be considered "Done":
+
+- [ ] All acceptance criteria are met
+- [ ] Code is written and committed
+- [ ] Unit tests are written and passing
+- [ ] Documentation is updated
+- [ ] Peer review is completed
+- [ ] No critical bugs remain
+- [ ] Product Owner has accepted the story
+
+---
+
+## 9. Jira Configuration
+
+### Project Settings
+- **Project Key**: DENT
+- **Project Type**: Scrum
+- **Board Name**: DentWise Testing Board
+
+### Issue Types
+1. Epic
+2. User Story
+3. Task
+4. Bug
+5. Test
+
+### Workflow
+```
+To Do → In Progress → Testing → Done
+```
+
+### Labels Used
+- `requirements`
+- `black-box`
+- `white-box`
+- `unit-test`
+- `bug`
+- `documentation`
+
+---
+
+## 10. Sprint Retrospective
+
+### What Went Well
+- All test cases were designed and executed successfully
+- 100% branch coverage achieved
+- Team collaboration was effective
+- Documentation was comprehensive
+
+### What Could Be Improved
+- Earlier integration with Jira/Xray
+- More automated reporting
+- Better time estimation for complex tasks
+
+### Action Items for Next Sprint
+1. Set up automated test reporting
+2. Create test data management strategy
+3. Implement CI/CD pipeline integration

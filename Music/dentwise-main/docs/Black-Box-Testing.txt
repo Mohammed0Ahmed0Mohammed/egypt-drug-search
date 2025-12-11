@@ -1,0 +1,488 @@
+Black Box Testing - DentWise Application
+1. Testing Approach
+This document outlines the black-box testing strategy using: - Equivalence Partitioning
+(EP): Dividing input data into valid and invalid partitions - Boundary Value Analysis (BVA):
+Testing at the edges of input ranges
+
+2. Test Cases for formatPhoneNumber Function
+2.1 Equivalence Partitioning Analysis
+Partition
+
+Description
+
+Valid/Invalid
+
+Example Input
+
+EP1
+EP2
+EP3
+EP4
+EP5
+EP6
+EP7
+EP8
+
+Empty string
+1-3 digits
+4-6 digits
+7-9 digits
+10-11 digits
+More than 11 digits
+Contains letters
+Contains special chars
+
+Valid
+Valid
+Valid
+Valid
+Valid
+Valid (truncated)
+Valid (stripped)
+Valid (stripped)
+
+””
+“011”
+“011245”
+“011245552”
+“01124555246”
+“011245552461234”
+“011abc245”
+“(+2) 011-245”
+
+2.2 Boundary Value Analysis
+Boundary
+
+Description
+
+Input
+
+Expected Output
+
+BVA1
+BVA2
+BVA3
+BVA4
+BVA5
+BVA6
+BVA7
+BVA8
+BVA9
+BVA10
+
+Min length (0)
+Min+1 (1 digit)
+Partition edge (3 digits)
+Partition edge (4 digits)
+Partition edge (6 digits)
+Partition edge (7 digits)
+Partition edge (9 digits)
+Partition edge (10 digits)
+Max valid (11 digits)
+Max+1 (12 digits)
+
+””
+“0”
+“011”
+“0112”
+“011245”
+“0112455”
+“011245552”
+“0112455524”
+“01124555246”
+“011245552461”
+
+””
+“(+2) 0”
+“(+2) 011”
+“(+2) 011 2”
+“(+2) 011 245”
+“(+2) 011 245 5”
+“(+2) 011 245 552”
+“(+2) 011 245 552 4”
+“(+2) 011 245 552 46”
+“(+2) 011 245 552 46”
+
+3. Detailed Test Case Table
+TC-BB-01: Empty String Input
+Field
+
+Value
+
+Test Case ID
+Description
+Preconditions
+Test Data
+
+TC-BB-01
+Verify empty string returns empty string
+None
+Input: ””
+
+1
+
+Field
+
+Value
+
+Steps
+Expected Result
+Actual Result
+Status
+Technique
+
+1. Call formatPhoneNumber(””)
+Returns ””
+””
+PASS
+EP1, BVA1
+
+TC-BB-02: Single Digit Input
+Field
+
+Value
+
+Test Case ID
+Description
+Preconditions
+Test Data
+Steps
+Expected Result
+Actual Result
+Status
+Technique
+
+TC-BB-02
+Verify single digit is formatted correctly
+None
+Input: “0”
+1. Call formatPhoneNumber(“0”)
+Returns “(+2) 0”
+“(+2) 0”
+PASS
+BVA2
+
+TC-BB-03: Three Digit Input
+Field
+
+Value
+
+Test Case ID
+Description
+Preconditions
+Test Data
+Steps
+Expected Result
+Actual Result
+Status
+Technique
+
+TC-BB-03
+Verify 3-digit number is formatted with country code
+None
+Input: “011”
+1. Call formatPhoneNumber(“011”)
+Returns “(+2) 011”
+“(+2) 011”
+PASS
+EP2, BVA3
+
+TC-BB-04: Six Digit Input
+Field
+
+Value
+
+Test Case ID
+Description
+Preconditions
+Test Data
+Steps
+Expected Result
+Actual Result
+Status
+Technique
+
+TC-BB-04
+Verify 6-digit number is formatted with proper spacing
+None
+Input: “011245”
+1. Call formatPhoneNumber(“011245”)
+Returns “(+2) 011 245”
+“(+2) 011 245”
+PASS
+EP3, BVA5
+
+2
+
+TC-BB-05: Nine Digit Input
+Field
+
+Value
+
+Test Case ID
+Description
+Preconditions
+Test Data
+Steps
+Expected Result
+Actual Result
+Status
+Technique
+
+TC-BB-05
+Verify 9-digit number is formatted correctly
+None
+Input: “011245552”
+1. Call formatPhoneNumber(“011245552”)
+Returns “(+2) 011 245 552”
+“(+2) 011 245 552”
+PASS
+EP4, BVA7
+
+TC-BB-06: Full Egyptian Phone Number (11 digits)
+Field
+
+Value
+
+Test Case ID
+Description
+Preconditions
+Test Data
+Steps
+Expected Result
+Actual Result
+Status
+Technique
+
+TC-BB-06
+Verify complete Egyptian phone number formatting
+None
+Input: “01124555246”
+1. Call formatPhoneNumber(“01124555246”)
+Returns “(+2) 011 245 552 46”
+“(+2) 011 245 552 46”
+PASS
+EP5, BVA9
+
+TC-BB-07: Input with Special Characters
+Field
+
+Value
+
+Test Case ID
+Description
+Preconditions
+Test Data
+Steps
+Expected Result
+Actual Result
+Status
+Technique
+
+TC-BB-07
+Verify special characters are stripped
+None
+Input: “(+2) 011-245-5524”
+1. Call formatPhoneNumber(“(+2) 011-245-5524”)
+Returns “(+2) 011 245 552 4”
+“(+2) 011 245 552 4”
+PASS
+EP8
+
+TC-BB-08: Input with Spaces
+Field
+
+Value
+
+Test Case ID
+Description
+Preconditions
+Test Data
+Steps
+
+TC-BB-08
+Verify spaces in input are handled
+None
+Input: “011 245 552”
+1. Call formatPhoneNumber(“011 245 552”)
+
+3
+
+Field
+
+Value
+
+Expected Result
+Actual Result
+Status
+Technique
+
+Returns “(+2) 011 245 552”
+“(+2) 011 245 552”
+PASS
+EP8
+
+TC-BB-09: Four Digit Input (Boundary)
+Field
+
+Value
+
+Test Case ID
+Description
+Preconditions
+Test Data
+Steps
+Expected Result
+Actual Result
+Status
+Technique
+
+TC-BB-09
+Verify 4-digit boundary is handled
+None
+Input: “0112”
+1. Call formatPhoneNumber(“0112”)
+Returns “(+2) 011 2”
+“(+2) 011 2”
+PASS
+BVA4
+
+TC-BB-10: Seven Digit Input (Boundary)
+Field
+
+Value
+
+Test Case ID
+Description
+Preconditions
+Test Data
+Steps
+Expected Result
+Actual Result
+Status
+Technique
+
+TC-BB-10
+Verify 7-digit boundary is handled
+None
+Input: “0112455”
+1. Call formatPhoneNumber(“0112455”)
+Returns “(+2) 011 245 5”
+“(+2) 011 245 5”
+PASS
+BVA6
+
+4. Test Execution Summary
+Total Test Cases
+
+Passed
+
+Failed
+
+Pass Rate
+
+10
+
+10
+
+0
+
+100%
+
+5. Additional Test Cases (Other Functions)
+getNext5Days Function
+
+4
+
+TC ID
+
+Description
+
+Expected
+
+Status
+
+TC-DATE-01
+TC-DATE-02
+TC-DATE-03
+
+Returns array of 5 dates
+Dates in ISO format
+First date is tomorrow
+
+Array.length = 5
+YYYY-MM-DD pattern
+Today + 1
+
+PASS
+PASS
+PASS
+
+getAvailableTimeSlots Function
+TC ID
+
+Description
+
+Expected
+
+TC-SLOT-01
+TC-SLOT-02
+TC-SLOT-03
+TC-SLOT-04
+
+Returns 12 slots
+First slot is 09:00
+Last slot is 16:30
+HH:MM format
+
+Array.length = 12
+“09:00”
+“16:30”
+Pattern match
+
+Status
+PASS
+PASS
+PASS
+PASS
+
+generateAvatar Function
+TC ID
+
+Description
+
+Expected
+
+TC-AVATAR-01
+TC-AVATAR-02
+TC-AVATAR-03
+
+Male avatar URL
+Female avatar URL
+Multiple spaces handled
+
+Contains “boy”
+Contains “girl”
+Spaces removed
+
+6. Jira Test Case Upload Format
+Test Case ID: TC-BB-XX
+Summary: [Brief description]
+Priority: Medium
+Test Type: Functional
+Preconditions: [Any setup needed]
+Test Steps:
+1. [Step description]
+Expected Result: [What should happen]
+Actual Result: [What happened]
+Status: Pass/Fail
+Attachments: [Screenshots if needed]
+
+5
+
+Status
+PASS
+PASS
+PASS
+
+

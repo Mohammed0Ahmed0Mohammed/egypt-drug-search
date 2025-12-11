@@ -1,0 +1,440 @@
+DentWise - Software Testing Project Report
+Cover Page
+
+Software Testing Assignment
+WhiteBoxSample - Java Testing Project
+Course: Software Testing
+Semester: Fall 2024
+Instructor: [Instructor Name]
+
+Team Members
+#
+
+Name
+
+Student ID
+
+Role
+
+1
+2
+3
+
+‫محمد أحمد محمد‬
+‫سيد علي‬
+‫كرم حبيبه‬
+
+-
+
+Team Lead
+QA Engineer
+QA Engineer
+
+Submission Date: [Date]
+
+Table of Contents
+1. Test Plan
+2. Requirements Analysis
+3. Black Box Testing
+4. White Box Testing
+5. Unit Testing (JUnit)
+6. Agile Testing
+7. Bug Reports
+8. Conclusions
+
+1. Test Plan
+1.1 Introduction
+Project: WhiteBoxSample - Java Application
+Application Type: Java Application (Banking System Simulation)
+Testing Period: Sprint 1 (2 weeks)
+
+1
+
+1.2 Objectives
+• Apply functional (black-box) and structural (white-box) testing techniques
+• Automate unit tests using JUnit 5
+• Manage test cases and report defects
+• Simulate Agile testing environment
+• Demonstrate test planning, execution, and reporting
+1.3 Scope
+In Scope:
+• Account class (deposit, withdraw, freeze)
+• TransactionProcessor (transfer, calculateFee)
+• SecurityUtils (password validation, sanitization)
+• DiscountCalculator (discount calculations)
+Out of Scope:
+• Database testing
+• API integration testing
+• Performance testing
+1.4 Test Strategy
+Testing Type
+
+Technique
+
+Tools
+
+Black Box
+White Box
+Unit Testing
+Agile
+
+EP, BVA
+Path Coverage, CFG
+Automated
+Scrum
+
+JUnit 5
+JUnit 5, JaCoCo
+JUnit 5
+Jira
+
+2. Requirements Analysis
+2.1 Functional Requirements (7)
+ID
+
+Requirement
+
+Description
+
+FR-01
+FR-02
+FR-03
+FR-04
+FR-05
+FR-06
+FR-07
+
+Account Creation
+Deposit
+Withdraw
+Transfer
+Fee Calculation
+Password Validation
+Discount Calculation
+
+Create accounts with ID, balance, and type
+Add money to account with validation
+Remove money with balance check
+Move money between accounts with fees
+Calculate fees based on customer type
+Check password strength
+Calculate discounts based on customer loyalty
+
+2.2 Non-Functional Requirements
+
+2
+
+ID
+
+Requirement
+
+Metric
+
+NFR-01
+NFR-02
+NFR-03
+
+Performance
+Security
+Reliability
+
+Calculations < 10ms
+Password validation enforced
+No data loss on exceptions
+
+3. Black Box Testing
+3.1 Techniques Used
+1. Equivalence Partitioning (EP)
+2. Boundary Value Analysis (BVA)
+3.2 Test Cases for calculateFee
+TC ID
+
+Input (Type, Amount)
+
+Expected
+
+Technique
+
+TC-01
+TC-02
+TC-03
+TC-04
+TC-05
+TC-06
+TC-07
+TC-08
+TC-09
+TC-10
+
+VIP, 2000
+VIP, 500
+VIP, 1000
+VIP, 1001
+PREMIUM, 1000
+REGULAR, 100
+REGULAR, 30
+REGULAR, 49
+REGULAR, 50
+ANY, 0
+
+10.0 (0.5%)
+5.0 (1%)
+10.0 (boundary)
+5.005 (boundary)
+15.0 (1.5%)
+2.0 (2%)
+1.0 (fixed)
+1.0 (boundary)
+1.0 (boundary)
+0.0 (edge)
+
+EP
+EP
+BVA
+BVA
+EP
+EP
+EP
+BVA
+BVA
+BVA
+
+4. White Box Testing
+4.1 Selected Function: calculateFee
+public double calculateFee(CustomerType type, double amount) {
+if (amount <= 0) return 0.0;
+switch (type) {
+case VIP:
+if (amount > 1000) return amount * 0.005;
+return amount * 0.01;
+case PREMIUM:
+return amount * 0.015;
+case REGULAR:
+default:
+if (amount < 50) return 1.0;
+return amount * 0.02;
+}
+}
+4.2 Cyclomatic Complexity
+V(G) = 6
+3
+
+4.3 Control Flow Graph
+START → [amount<=0?] → YES → return 0 → END
+↓ NO
+[switch type]
+↓
+↓
+↓
+VIP PREMIUM REGULAR
+↓
+↓
+↓
+[>1000?] 1.5% [<50?]
+↓
+↓
+↓
+↓
+0.5% 1%
+1.0 2%
+↓
+END
+4.4 Independent Paths (6)
+Path
+
+Condition
+
+Test Case
+
+1
+2
+3
+4
+5
+6
+
+amount <= 0
+VIP, amount > 1000
+VIP, amount <= 1000
+PREMIUM
+REGULAR, amount < 50
+REGULAR, amount >= 50
+
+TC-FEE-08
+TC-FEE-01
+TC-FEE-02
+TC-FEE-04
+TC-FEE-06
+TC-FEE-05
+
+5. Unit Testing (JUnit)
+5.1 Framework: JUnit 5
+5.2 Test Summary
+Class
+
+Test Cases
+
+Passed
+
+Account
+TransactionProcessor
+calculateFee
+isPasswordStrong
+sanitize
+DiscountCalculator
+Total
+
+11
+9
+8
+7
+5
+10
+50
+
+11
+9
+8
+7
+5
+10
+50
+
+5.3 Test Categories
+Category
+
+Count
+
+Normal
+Exception
+Edge
+Boundary
+
+25
+10
+8
+7
+
+4
+
+5.4 Running Tests
+cd java-testing
+mvn test
+mvn test jacoco:report
+
+6. Agile Testing
+6.1 Sprint Summary
+Metric
+
+Value
+
+Sprint Duration
+Story Points
+Completed
+
+2 weeks
+32
+32 (100%)
+
+6.2 User Stories
+ID
+
+Story
+
+Points
+
+US-01
+US-02
+US-03
+US-04
+US-05
+US-06
+
+Requirements Analysis
+Black-Box Testing
+White-Box Testing
+Unit Testing
+Documentation
+Bug Reporting
+
+5
+8
+8
+5
+3
+3
+
+6.3 Sprint Board (Final)
+To Do
+
+In Progress
+
+Done
+
+-
+
+-
+
+All 6 stories
+
+7. Bug Reports
+BUG-001: Phone Truncation
+• Severity: Medium
+• Status: Open
+• Description: Phone numbers > 11 digits silently truncated
+BUG-002: Missing Coverage
+• Severity: Low
+• Status: Open
+• Description: Some edge cases in DiscountCalculator
+
+5
+
+8. Conclusions
+8.1 Summary
+Deliverable
+
+Status
+
+Requirements Analysis
+Black Box Testing (10+ cases)
+White Box Testing (CFG, CC=6)
+Unit Testing (50 tests)
+Agile Documentation
+Bug Reports (2)
+
+8.2 Key Metrics
+Metric
+
+Value
+
+Test Cases
+Pass Rate
+Cyclomatic Complexity
+Independent Paths
+Coverage
+
+50
+100%
+6
+6
+97%+
+
+8.3 Files Submitted
+java-testing/
+��� pom.xml
+��� src/main/java/vv/sample/WhiteBoxSample.java
+��� src/test/java/vv/sample/WhiteBoxSampleTest.java
+docs/
+��� 1-requirements-analysis.md
+��� 2-black-box-testing.md
+��� 3-white-box-testing.md
+��� 4-unit-testing.md
+��� 5-agile-testing.md
+��� 6-bug-reports.md
+��� 7-final-report.md
+
+End of Report
+
+6
+
+
