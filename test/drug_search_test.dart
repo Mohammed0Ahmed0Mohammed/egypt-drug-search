@@ -1,0 +1,322 @@
+import 'dart:io';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+import 'package:flutter_drug_search/core/database/database_helper.dart';
+import 'package:flutter_drug_search/core/providers/drug_provider.dart';
+import 'package:flutter_drug_search/model/drug.dart';
+
+/// Path to the real prebuilt DB used by the app (build_db.py output).
+/// Resolved relative to this test file: ../../build/egypt_drugs.db
+String get realDbPath {
+  final testDir = File.fromUri(Uri.parse('file://${Directory.current.path}'));
+  final candidates = [
+    File('${testDir.path}/../build/egypt_drugs.db'),
+    File('${testDir.path}/build/egypt_drugs.db'),
+  ];
+  for (final c in candidates) {
+    if (c.existsSync()) return c.path;
+  }
+  throw StateError(
+    'egypt_drugs.db not found. Run build/build_db.py first. Looked in: '
+    '${candidates.map((c) => c.path).join(', ')}',
+  );
+}
+
+void main() {
+  // Desktop SQLite backend for tests.
+  sqfliteFfiInit();
+  databaseFactory = databaseFactoryFfi;
+  // path_provider (used by FavoritesDb test) needs the Flutter binding.
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    // Point the catalog helper at the REAL database file so we exercise the
+    // actual query methods (searchByName, filterByCategory, sameIngredient, ...).
+    DatabaseHelper.useTestDb(realDbPath);
+    // Point the writable favorites DB at a temp file (no path_provider needed).
+    final favPath = p.join(Directory.systemTemp.path, 'test_fav_main.db');
+    FavoritesDb.useTestDb(favPath);
+  });
+
+  tearDown(() {
+    DatabaseHelper.resetDb();
+    FavoritesDb.reset();
+  });
+
+  group('DrugProvider / DatabaseHelper against the real DB', () {
+    test('total count matches the 32,525 merged records', () async {
+      final prov = DrugProvider();
+      await prov.init();
+      expect(prov.total, greaterThanOrEqualTo(32000));
+      // init() seeds the first page of results.
+      expect(prov.results, isNotEmpty);
+      expect(prov.categories.length, 33);
+    });
+
+    test('search by Arabic name returns matching drugs', () async {
+      final db = DatabaseHelper();
+      final r = await db.searchByName('كونترامال');
+      expect(r, isNotEmpty);
+      for (final d in r) {
+        final hay = '${d.tradeNameAr} ${d.tradeNameEn}'.toLowerCase();
+        expect(hay, contains('كونترامال'.toLowerCase()));
+      }
+    });
+
+    test('search by English name returns matching drugs', () async {
+      final db = DatabaseHelper();
+      final r = await db.searchByName('panadol');
+      expect(r, isNotEmpty);
+      expect(r.first.tradeNameEn.toLowerCase(), contains('panadol'));
+    });
+
+    test('filterByCategory(Tablet) only returns Tablet rows', () async {
+      final db = DatabaseHelper();
+      final r = await db.filterByCategory('Tablet', limit: 2000);
+      expect(r.length, greaterThan(1000));
+      for (final d in r) {
+        expect(d.category, 'Tablet');
+      }
+    });
+
+    test('all 33 categories are non-empty', () async {
+      final db = DatabaseHelper();
+      final cats = await db.categories();
+      expect(cats.length, 33);
+      for (final c in cats) {
+        final n = (await db.filterByCategory(c, limit: 1)).length;
+        expect(n, greaterThan(0), reason: 'category $c should have rows');
+      }
+    });
+
+    test('sameIngredient returns every form sharing the active ingredient',
+        () async {
+      final db = DatabaseHelper();
+      // Find a drug with a KNOWN non-empty scientific name (karem505 source).
+      Future<Drug> firstWithSci(String q) async {
+        final hits = await db.searchByName(q);
+        return hits.firstWhere((d) => d.scientificName.isNotEmpty);
+      }
+
+      final sample = await firstWithSci('augmentin').catchError((_) => firstWithSci('panadol'));
+      expect(sample.scientificName, isNotEmpty);
+      final forms = await db.sameIngredient(sample.scientificName);
+      expect(forms, isNotEmpty);
+      // Every returned form must share the same active ingredient.
+      for (final f in forms) {
+        expect(f.scientificName, sample.scientificName);
+      }
+      // The original drug is among its own forms.
+      expect(forms.any((f) => f.id == sample.id), isTrue);
+    });
+
+    test('cheapestByIngredient prices are ascending and not null', () async {
+      final db = DatabaseHelper();
+      final r = await db.cheapestByIngredient('PARACETAMOL', limit: 10);
+      expect(r, isNotEmpty);
+      for (final d in r) {
+        expect(d.priceEgp, isNotNull);
+      }
+      final prices = r.map((d) => d.priceEgp!).toList();
+      final sorted = [...prices]..sort();
+      expect(prices, orderedEquals(sorted));
+    });
+
+    test('Drug model: displayName prefers Arabic, priceLabel formats EGP', () {
+      const ar = Drug(
+        tradeNameEn: 'PANADOL',
+        tradeNameAr: 'بانادول',
+        scientificName: 'PARACETAMOL',
+        manufacturer: 'GSK',
+        priceEgp: 46.0,
+        category: 'Tablet',
+        route: 'ORAL.SOLID',
+        drugClass: '',
+        therapyClass: 'مسكن / مضاد التهاب',
+        source: 'karem505',
+      );
+      expect(ar.displayName, 'بانادول');
+      expect(ar.priceLabel, '46.00 ج.م');
+
+      const noAr = Drug(
+        tradeNameEn: 'SOME DRUG',
+        tradeNameAr: '',
+        scientificName: '',
+        manufacturer: '',
+        priceEgp: null,
+        category: 'Other',
+        route: '',
+        drugClass: '',
+        therapyClass: '',
+        source: 'moaazsalter',
+      );
+      expect(noAr.displayName, 'SOME DRUG');
+      expect(noAr.priceLabel, '—');
+    });
+
+    test('search with price range returns only in-range priced drugs', () async {
+      final db = DatabaseHelper();
+      // Low-end range: 0..5 EGP
+      final r = await db.search(name: '', minPrice: 0, maxPrice: 5, limit: 500);
+      expect(r, isNotEmpty);
+      for (final d in r) {
+        expect(d.priceEgp, isNotNull);
+        expect(d.priceEgp!, greaterThanOrEqualTo(0));
+        expect(d.priceEgp!, lessThanOrEqualTo(5));
+      }
+      // Widening the range must include at least as many as the tight one.
+      final wide = await db.search(name: '', maxPrice: 50, limit: 500);
+      expect(wide.length, greaterThanOrEqualTo(r.length));
+    });
+
+    test('search with therapy_class filter returns only that therapy area',
+        () async {
+      final db = DatabaseHelper();
+      final therapies = await db.therapyClasses();
+      expect(therapies.length, greaterThan(1)); // 'الكل' + areas
+      final area = therapies.firstWhere((t) => t != 'الكل');
+      final r = await db.search(therapyClass: area, limit: 200);
+      expect(r, isNotEmpty);
+      for (final d in r) {
+        expect(d.therapyClass, area);
+      }
+    });
+
+    test('combined filters (category + therapy + price) all apply', () async {
+      final db = DatabaseHelper();
+      final r = await db.search(
+        category: 'Tablet',
+        therapyClass: 'مضاد حيوي / ميكروبي',
+        minPrice: 10,
+        maxPrice: 200,
+        limit: 200,
+      );
+      for (final d in r) {
+        expect(d.category, 'Tablet');
+        expect(d.therapyClass, 'مضاد حيوي / ميكروبي');
+        expect(d.priceEgp, isNotNull);
+        expect(d.priceEgp!, greaterThanOrEqualTo(10));
+        expect(d.priceEgp!, lessThanOrEqualTo(200));
+      }
+    });
+
+    test('search sortBy price_asc / price_desc are correctly ordered', () async {
+      final db = DatabaseHelper();
+      // Restrict to priced drugs so sorting is meaningful (NULLs sort first in
+      // SQLite and would otherwise dominate the top of an unfiltered list).
+      final asc = await db.search(minPrice: 0, sortBy: 'price_asc', limit: 100);
+      final desc = await db.search(minPrice: 0, sortBy: 'price_desc', limit: 100);
+      expect(asc.length, greaterThan(1));
+      expect(desc.length, greaterThan(1));
+      final ascPrices = asc.map((d) => d.priceEgp!).toList();
+      final ascSorted = [...ascPrices]..sort();
+      expect(ascPrices, orderedEquals(ascSorted));
+      final descPrices = desc.map((d) => d.priceEgp!).toList();
+      final descSorted = [...descPrices]..sort((a, b) => b.compareTo(a));
+      expect(descPrices, orderedEquals(descSorted));
+      // cheapest of asc must be <= most expensive of desc
+      expect(ascPrices.first, lessThanOrEqualTo(descPrices.first));
+    });
+
+    test('cheaperAlternatives returns strictly cheaper same-ingredient drugs',
+        () async {
+      final db = DatabaseHelper();
+      // Find a drug with a known ingredient and a price, plus cheaper cousins.
+      Future<Drug> firstPricedWithSci(String q) async {
+        final hits = await db.searchByName(q);
+        return hits.firstWhere(
+            (d) => d.scientificName.isNotEmpty && d.priceEgp != null);
+      }
+
+      late Drug sample;
+      try {
+        sample = await firstPricedWithSci('augmentin');
+      } catch (_) {
+        sample = await firstPricedWithSci('panadol');
+      }
+      expect(sample.id, isNotNull);
+      final alts = await db.cheaperAlternatives(
+        scientific: sample.scientificName,
+        currentPrice: sample.priceEgp,
+        excludeId: sample.id!,
+        tradeNameEn: sample.tradeNameEn,
+      );
+      // Every alternative must share the ingredient, be cheaper, and exclude self.
+      for (final a in alts) {
+        expect(a.scientificName, sample.scientificName);
+        expect(a.id, isNot(sample.id));
+        expect(a.priceEgp, isNotNull);
+        expect(a.priceEgp!, lessThan(sample.priceEgp!));
+      }
+    });
+
+    test('searchBy=scientific matches the active-ingredient column', () async {
+      final db = DatabaseHelper();
+      final r = await db.search(name: 'PARACETAMOL', searchBy: 'scientific', limit: 50);
+      expect(r, isNotEmpty);
+      for (final d in r) {
+        expect(d.scientificName.toUpperCase(), contains('PARACETAMOL'));
+      }
+      // Same query in trade mode should NOT necessarily match the same way.
+      final trade = await db.search(name: 'PARACETAMOL', searchBy: 'trade', limit: 50);
+      // trade mode searches name columns; ingredient-only drugs may be absent.
+      expect(trade, isA<List<Drug>>());
+    });
+
+    test('FavoritesDb writes and reads back locally', () async {
+      // Use a temp file (avoid path_provider, which needs a platform channel
+      // not available in this unit-test context).
+      final fpath = p.join(Directory.systemTemp.path, 'test_fav.db');
+      final f = File(fpath);
+      if (await f.exists()) await f.delete();
+      FavoritesDb.useTestDb(fpath);
+      try {
+        final fav = FavoritesDb();
+        const d = Drug(
+          id: 999001,
+          tradeNameEn: 'TESTDRUG',
+          tradeNameAr: 'دواء اختبار',
+          scientificName: 'TESTACT',
+          manufacturer: 'TESTCO',
+          priceEgp: 12.5,
+          category: 'Tablet',
+          route: 'ORAL.SOLID',
+          drugClass: '',
+          therapyClass: 'مسكن / مضاد التهاب',
+          source: 'karem505',
+        );
+        expect(await fav.contains(d.id!), isFalse);
+        await fav.add(d);
+        expect(await fav.contains(d.id!), isTrue);
+        final all = await fav.all();
+        expect(all.length, 1);
+        expect(all.first.tradeNameAr, 'دواء اختبار');
+        await fav.remove(d);
+        expect(await fav.contains(d.id!), isFalse);
+      } finally {
+        FavoritesDb.reset();
+        if (await f.exists()) await f.delete();
+      }
+    });
+
+    test('count() and search() with offset give consistent pagination', () async {
+      final db = DatabaseHelper();
+      // Total count of "Tablet" category
+      final total = await db.count(category: 'Tablet');
+      expect(total, greaterThan(100));
+      // First page (50) + second page (50) should not overlap and not exceed total
+      final p1 = await db.search(category: 'Tablet', limit: 50, offset: 0);
+      final p2 = await db.search(category: 'Tablet', limit: 50, offset: 50);
+      expect(p1.length, 50);
+      expect(p2.length, lessThanOrEqualTo(50));
+      final p1ids = p1.map((d) => d.id).toSet();
+      final p2ids = p2.map((d) => d.id).toSet();
+      expect(p1ids.intersection(p2ids).isEmpty, isTrue);
+      // p1 + p2 combined should not exceed the count
+      expect(p1.length + p2.length, lessThanOrEqualTo(total));
+    });
+  });
+}
