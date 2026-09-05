@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-linux:
     runs-on: ubuntu-latest
@@ -13,17 +16,21 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
       - run: flutter pub get
       - run: flutter test
       - run: flutter build linux --release
       - name: Zip Linux bundle
         run: |
           cd build/linux/x64/release/bundle
-          zip -r ../../../../../linux-release.zip .
+          zip -r ../../../../../egypt-drug-search-linux.zip .
       - uses: actions/upload-artifact@v4
         with:
           name: linux-release
-          path: linux-release.zip
+          path: egypt-drug-search-linux.zip
 
   build-windows:
     runs-on: windows-latest
@@ -38,11 +45,11 @@ jobs:
       - name: Zip Windows bundle
         run: |
           cd build/windows/x64/runner/Release
-          Compress-Archive -Path * -DestinationPath ../../../../../windows-release.zip
+          Compress-Archive -Path * -DestinationPath ../../../../../egypt-drug-search-windows.zip
       - uses: actions/upload-artifact@v4
         with:
           name: windows-release
-          path: windows-release.zip
+          path: egypt-drug-search-windows.zip
 
   release:
     needs: [build-linux, build-windows]
@@ -55,10 +62,10 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.run_number }}
-          name: Egyptian Drug Search v${{ github.run_number }}
+          tag_name: v1.0.${{ github.run_number }}
+          name: Egyptian Drug Search v1.0.${{ github.run_number }}
           files: |
-            artifacts/linux-release/linux-release.zip
-            artifacts/windows-release/windows-release.zip
+            artifacts/linux-release/egypt-drug-search-linux.zip
+            artifacts/windows-release/egypt-drug-search-windows.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

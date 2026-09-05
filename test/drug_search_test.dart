@@ -35,10 +35,10 @@ void main() {
     FavoritesDb.useTestDb(p.join(Directory.systemTemp.path, 'test_fav_main.db'));
   });
 
-  tearDown(() {
+  tearDown(() async {
     if (!hasRealDb) return;
-    DatabaseHelper.resetDb();
-    FavoritesDb.reset();
+    await DatabaseHelper.resetDb();
+    await FavoritesDb.reset();
   });
 
   group('DrugProvider / DatabaseHelper against the real DB', () {
@@ -303,7 +303,11 @@ void main() {
     test('FavoritesDb writes and reads back locally', () async {
       final fpath = p.join(Directory.systemTemp.path, 'test_fav.db');
       final f = File(fpath);
-      if (await f.exists()) await f.delete();
+      if (await f.exists()) {
+        try {
+          await f.delete();
+        } catch (_) {}
+      }
       FavoritesDb.useTestDb(fpath);
       try {
         final fav = FavoritesDb();
@@ -329,8 +333,12 @@ void main() {
         await fav.remove(d);
         expect(await fav.contains(d.id!), isFalse);
       } finally {
-        FavoritesDb.reset();
-        if (await f.exists()) await f.delete();
+        await FavoritesDb.reset();
+        if (await f.exists()) {
+          try {
+            await f.delete();
+          } catch (_) {}
+        }
       }
     });
 

@@ -31,9 +31,12 @@ class DatabaseHelper {
     _database = null;
   }
 
-  static void resetDb() {
+  static Future<void> resetDb() async {
     _testDbPath = null;
-    _database = null;
+    if (_database != null) {
+      await _database!.close();
+      _database = null;
+    }
   }
 
   Future<Database> get database async {
@@ -349,10 +352,13 @@ class FavoritesDb {
     _db = null;
   }
 
-  static void reset() {
+  static Future<void> reset() async {
     _testPath = null;
     _testMode = false;
-    _db = null;
+    if (_db != null) {
+      await _db!.close();
+      _db = null;
+    }
   }
 
   Future<Database> get database async {
